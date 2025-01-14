@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+import org.yg.mallchat.common.user.service.WXMsgService;
 
 /**
  * Description: 微信api交互接口
@@ -29,6 +30,9 @@ public class WxPortalController {
 
     @Autowired
     private WxMpService wxMpService;
+
+    @Autowired
+    private WXMsgService wxMsgService;
 
     @GetMapping("/test")
     public String getQrCode(@RequestParam Integer code) throws WxErrorException {
@@ -67,9 +71,11 @@ public class WxPortalController {
     @GetMapping("/callBack")
     public RedirectView callBack(@RequestParam String code) throws WxErrorException {
         WxOAuth2AccessToken accessToken =  wxMpService.getOAuth2Service().getAccessToken(code);
-        WxOAuth2UserInfo zh_cn = wxMpService.getOAuth2Service().getUserInfo(accessToken, "zh_CN");
-        System.out.println(zh_cn);
-        return null;
+        WxOAuth2UserInfo userInfo = wxMpService.getOAuth2Service().getUserInfo(accessToken, "zh_CN");
+        wxMsgService.authorize(userInfo);
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl("www.mallchat.cn");
+        return redirectView;
     }
 
     @PostMapping(produces = "application/xml; charset=UTF-8")
