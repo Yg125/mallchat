@@ -53,7 +53,7 @@ public class LoginServiceImpl implements LoginService {
         if(StringUtils.isBlank(oldToken)){
             return null;
         }
-        return Objects.equals(oldToken, token) ? uid : null; //todo 这里字符串有问题
+        return Objects.equals(oldToken, token) ? uid : null;
     }
 
     private String getUserTokenKey(Long uid) {
