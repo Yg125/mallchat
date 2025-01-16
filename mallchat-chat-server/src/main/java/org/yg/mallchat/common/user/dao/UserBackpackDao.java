@@ -1,5 +1,6 @@
 package org.yg.mallchat.common.user.dao;
 
+import org.yg.mallchat.common.common.domain.enums.YesOrNoEnum;
 import org.yg.mallchat.common.user.domain.entity.UserBackpack;
 import org.yg.mallchat.common.user.mapper.UserBackpackMapper;
 import org.yg.mallchat.common.user.service.IUserBackpackService;
@@ -17,4 +18,29 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserBackpackDao extends ServiceImpl<UserBackpackMapper, UserBackpack> {
 
+    public Integer getCountByValidItemId(Long uid, Long itemId) {
+        return lambdaQuery()
+                .eq(UserBackpack::getUid, uid)
+                .eq(UserBackpack::getItemId, itemId)
+                .eq(UserBackpack::getStatus, YesOrNoEnum.NO.getStatus())
+                .count();
+    }
+
+    public UserBackpack getFirstValidItem(Long uid, Long itemId) {
+        return lambdaQuery()
+                .eq(UserBackpack::getUid, uid)
+                .eq(UserBackpack::getStatus, YesOrNoEnum.YES.getStatus())
+                .eq(UserBackpack::getItemId, itemId)
+                .orderByAsc(UserBackpack::getId)
+                .last("limit 1")
+                .one();
+    }
+
+    public boolean useItem(UserBackpack item) {
+        return lambdaUpdate()
+                .eq(UserBackpack::getId, item.getId())
+                .eq(UserBackpack::getStatus, YesOrNoEnum.NO.getStatus())
+                .set(UserBackpack::getStatus, YesOrNoEnum.YES.getStatus())
+                .update();
+    }
 }

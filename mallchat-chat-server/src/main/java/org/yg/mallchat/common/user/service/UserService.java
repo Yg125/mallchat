@@ -2,6 +2,7 @@ package org.yg.mallchat.common.user.service;
 
 import org.yg.mallchat.common.user.domain.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.yg.mallchat.common.user.domain.vo.resp.UserInfoResp;
 
 /**
  * <p>
@@ -14,4 +15,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface UserService{
 
     Long register(User insert);
+
+    UserInfoResp getUserInfo(Long uid);
+
+    void modifyName(Long uid, String name);
 }
