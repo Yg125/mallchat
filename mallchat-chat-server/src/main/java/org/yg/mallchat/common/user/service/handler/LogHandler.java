@@ -23,5 +23,4 @@ public class LogHandler extends AbstractHandler {
         log.info("\n接收到请求消息，内容：{}", JSONUtil.toJsonStr(wxMessage));
         return null;
     }
-
 }

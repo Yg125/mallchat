@@ -22,8 +22,6 @@ import java.net.URLEncoder;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.baomidou.mybatisplus.core.toolkit.IdWorker.getId;
-
 /**
  * @author yangang
  * @create 2025-01-14-下午3:10

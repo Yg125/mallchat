@@ -100,6 +100,11 @@ public class WebSocketServiceImpl implements WebSocketService {
         sendMsg(channel, WebSocketAdapter.buildWaitAuthorizeResp());
     }
 
+    @Override
+    public void authorize(Channel channel, String token) {
+
+    }
+
     public void sendMsg(Channel channel, WSBaseResp<?> resp) {
         channel.writeAndFlush(new TextWebSocketFrame(JSONUtil.toJsonStr(resp)));
     }
