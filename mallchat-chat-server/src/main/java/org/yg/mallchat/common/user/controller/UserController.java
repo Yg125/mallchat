@@ -1,23 +1,21 @@
 package org.yg.mallchat.common.user.controller;
 
 
-import cn.hutool.system.UserInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.stereotype.Controller;
-import org.yg.mallchat.common.common.domain.dto.RequestInfo;
 import org.yg.mallchat.common.common.domain.vo.resp.ApiResult;
 import org.yg.mallchat.common.common.utils.RequestHolder;
-import org.yg.mallchat.common.user.domain.entity.User;
 import org.yg.mallchat.common.user.domain.vo.req.ModifyNameReq;
+import org.yg.mallchat.common.user.domain.vo.req.WearingBadgeReq;
+import org.yg.mallchat.common.user.domain.vo.resp.BadgeResp;
 import org.yg.mallchat.common.user.domain.vo.resp.UserInfoResp;
 import org.yg.mallchat.common.user.service.UserService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * <p>
@@ -47,5 +45,20 @@ public class UserController {
         userService.modifyName(RequestHolder.get().getUid(), req.getName());
         return ApiResult.success();
     }
+
+    @GetMapping("/badges")
+    @ApiOperation("可选徽章预览")
+    public ApiResult<List<BadgeResp>> badges(){
+        return ApiResult.success(userService.badges(RequestHolder.get().getUid()));
+    }
+
+
+    @PostMapping("/badge")
+    @ApiOperation("佩戴徽章预览")
+    public ApiResult<Void> wearing(@Valid @RequestBody WearingBadgeReq req){
+        userService.wearingBadge(RequestHolder.get().getUid(), req.getItemId());
+        return ApiResult.success();
+    }
+
 }
 
