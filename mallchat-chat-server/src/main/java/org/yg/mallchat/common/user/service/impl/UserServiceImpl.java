@@ -1,8 +1,11 @@
 package org.yg.mallchat.common.user.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.yg.mallchat.common.common.annotation.RedissonLock;
+import org.yg.mallchat.common.common.event.UserRegisterEvent;
 import org.yg.mallchat.common.common.utils.AssertUtil;
 import org.yg.mallchat.common.user.dao.ItemConfigDao;
 import org.yg.mallchat.common.user.dao.UserBackpackDao;
@@ -39,12 +42,16 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ItemConfigDao itemConfigDao;
 
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     @Override
     @Transactional
     public Long register(User insert) {
-        boolean save = userDao.save(insert);
-        // todo 用户注册的事件
-        return null;
+        userDao.save(insert);
+        // 发放物品 用户注册事件
+        applicationEventPublisher.publishEvent(new UserRegisterEvent(this, insert));
+        return insert.getId();
     }
 
     @Override
@@ -56,6 +63,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    @RedissonLock(key="#uid")
     public void modifyName(Long uid, String name) {
         User oldUser = userDao.getByName(name);
         AssertUtil.isEmpty(oldUser, "名字已经被占用了，请换一个");

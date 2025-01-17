@@ -4,7 +4,10 @@ import cn.hutool.core.net.url.UrlBuilder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpRequest;
+import org.apache.commons.lang3.StringUtils;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Optional;
 
 /**
@@ -25,6 +28,15 @@ public class MyHeaderCollectHandler extends ChannelInboundHandlerAdapter {
             // 如果token存在
             tokenOptional.ifPresent(s->NettyUtil.setAttr(ctx.channel(),NettyUtil.TOKEN,s));
             request.setUri(urlBuilder.getPath().toString());
+            // 取用户ip
+            String ip = request.headers().get("X-Real-IP");
+            if(StringUtils.isBlank(ip)){
+                InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
+                ip = address.getAddress().getHostAddress();
+            }
+            // 保存到channel附件
+            NettyUtil.setAttr(ctx.channel(),NettyUtil.IP,ip);
+            ctx.pipeline().remove(this);
         }
         ctx.fireChannelRead(msg);
     }

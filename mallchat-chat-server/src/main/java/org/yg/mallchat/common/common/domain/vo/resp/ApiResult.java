@@ -1,5 +1,6 @@
 package org.yg.mallchat.common.common.domain.vo.resp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -12,6 +13,7 @@ import org.yg.mallchat.common.common.exception.ErrorEnum;
  */
 @Data
 @ApiModel("基础返回体")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiResult<T> {
     @ApiModelProperty("成功标识true or false")
     private Boolean success;

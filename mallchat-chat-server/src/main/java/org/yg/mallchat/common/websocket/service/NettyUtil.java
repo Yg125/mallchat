@@ -5,6 +5,9 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 
+/**
+ * Netty工具类
+ */
 public class NettyUtil {
 
     public static AttributeKey<String> TOKEN = AttributeKey.valueOf("token");

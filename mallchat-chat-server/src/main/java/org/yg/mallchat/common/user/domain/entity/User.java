@@ -8,6 +8,7 @@ import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.*;
 
 /**
@@ -20,7 +21,7 @@ import lombok.*;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("user")
+@TableName(value="user",autoResultMap = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -71,10 +72,10 @@ public class User implements Serializable {
     private Date lastOptTime;
 
     /**
-     * ip信息
+     * ip信息 sql中是json格式 这里需要转化
      */
-    @TableField("ip_info")
-    private String ipInfo;
+    @TableField(value = "ip_info", typeHandler = JacksonTypeHandler.class)
+    private IpInfo ipInfo;
 
     /**
      * 佩戴的徽章id
@@ -101,4 +102,10 @@ public class User implements Serializable {
     private Date updateTime;
 
 
+    public void refreshIp(String ip) {
+        if(ipInfo == null){
+            ipInfo = new IpInfo();
+        }
+        ipInfo.refreshIp(ip);
+    }
 }

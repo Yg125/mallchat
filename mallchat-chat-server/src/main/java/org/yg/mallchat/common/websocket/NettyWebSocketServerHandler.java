@@ -12,6 +12,7 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
+import lombok.extern.slf4j.Slf4j;
 import org.yg.mallchat.common.websocket.domain.enums.WSReqTypeEnum;
 import org.yg.mallchat.common.websocket.domain.vo.req.WSBaseReq;
 import org.yg.mallchat.common.websocket.service.NettyUtil;
@@ -23,6 +24,7 @@ import javax.xml.transform.Source;
  * @author yangang
  * @create 2025-01-11-下午10:31
  */
+@Slf4j
 public class NettyWebSocketServerHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
     private WebSocketService webSocketService;
@@ -41,6 +43,7 @@ public class NettyWebSocketServerHandler extends SimpleChannelInboundHandler<Tex
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
+            // 在握手时取出token 直接调用authorize 从而避免刷新之后握手认证
             String token = NettyUtil.getAttr(ctx.channel(), NettyUtil.TOKEN);
             if(StrUtil.isNotBlank(token)){
                 webSocketService.authorize(ctx.channel(), token);
@@ -53,7 +56,11 @@ public class NettyWebSocketServerHandler extends SimpleChannelInboundHandler<Tex
             }
         }
     }
-
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error(cause.getMessage());
+        super.exceptionCaught(ctx, cause);
+    }
     /**
      * 用户下线统一处理
      * @param channel
