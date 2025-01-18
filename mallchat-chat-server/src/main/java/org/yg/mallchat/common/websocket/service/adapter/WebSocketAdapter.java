@@ -1,10 +1,11 @@
 package org.yg.mallchat.common.websocket.service.adapter;
 
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
-import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import org.yg.mallchat.common.common.domain.enums.YesOrNoEnum;
 import org.yg.mallchat.common.user.domain.entity.User;
 import org.yg.mallchat.common.websocket.domain.enums.WSRespTypeEnum;
 import org.yg.mallchat.common.websocket.domain.vo.resp.WSBaseResp;
+import org.yg.mallchat.common.websocket.domain.vo.resp.WSBlack;
 import org.yg.mallchat.common.websocket.domain.vo.resp.WSLoginSuccess;
 import org.yg.mallchat.common.websocket.domain.vo.resp.WSLoginUrl;
 
@@ -19,7 +20,8 @@ public class WebSocketAdapter {
         resp.setData(new WSLoginUrl(wxMpQrCodeTicket.getUrl()));
         return resp;
     }
-    public static WSBaseResp<?> buildResp(User user, String token) {
+
+    public static WSBaseResp<?> buildResp(User user, String token, boolean power) {
         WSBaseResp<WSLoginSuccess> resp = new WSBaseResp<>();
         resp.setType(WSRespTypeEnum.LOGIN_SUCCESS.getType());
         WSLoginSuccess build = WSLoginSuccess.builder()
@@ -27,6 +29,7 @@ public class WebSocketAdapter {
                 .name(user.getName())
                 .token(token)
                 .uid(user.getId())
+                .power(power ? YesOrNoEnum.YES.getStatus() : YesOrNoEnum.NO.getStatus())
                 .build();
         resp.setData(build);
         return resp;
@@ -41,6 +44,16 @@ public class WebSocketAdapter {
     public static WSBaseResp<?> buildInvalidTokenResp() {
         WSBaseResp<WSLoginUrl> resp = new WSBaseResp<>();
         resp.setType(WSRespTypeEnum.INVALIDATE_TOKEN.getType());
+        return resp;
+    }
+
+    public static WSBaseResp<?> buildBlack(User user) {
+        WSBaseResp<WSBlack> resp = new WSBaseResp<>();
+        resp.setType(WSRespTypeEnum.BLACK.getType());
+        WSBlack build = WSBlack.builder()
+                .uid(user.getId())
+                .build();
+        resp.setData(build);
         return resp;
     }
 }

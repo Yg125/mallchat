@@ -2,6 +2,7 @@ package org.yg.mallchat.common.websocket.service;
 
 import io.netty.channel.Channel;
 import me.chanjar.weixin.common.error.WxErrorException;
+import org.yg.mallchat.common.websocket.domain.vo.resp.WSBaseResp;
 
 /**
  * @author yangang
@@ -20,4 +21,6 @@ public interface WebSocketService {
     void waitAuthorize(Integer code);
 
     void authorize(Channel channel, String token);
+
+    void sendMsgToAll(WSBaseResp<?> msg);
 }

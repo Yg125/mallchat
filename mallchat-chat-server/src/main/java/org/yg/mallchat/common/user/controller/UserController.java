@@ -7,11 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import org.yg.mallchat.common.common.domain.vo.resp.ApiResult;
+import org.yg.mallchat.common.common.utils.AssertUtil;
 import org.yg.mallchat.common.common.utils.RequestHolder;
+import org.yg.mallchat.common.user.domain.enums.RoleEnum;
+import org.yg.mallchat.common.user.domain.vo.req.BlackReq;
 import org.yg.mallchat.common.user.domain.vo.req.ModifyNameReq;
 import org.yg.mallchat.common.user.domain.vo.req.WearingBadgeReq;
 import org.yg.mallchat.common.user.domain.vo.resp.BadgeResp;
 import org.yg.mallchat.common.user.domain.vo.resp.UserInfoResp;
+import org.yg.mallchat.common.user.service.IRoleService;
 import org.yg.mallchat.common.user.service.UserService;
 
 import javax.validation.Valid;
@@ -33,6 +37,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private IRoleService roleService;
+
     @GetMapping("/userInfo")
     @ApiOperation("获取用户个人信息")
     public ApiResult<UserInfoResp> getUserInfo(){
@@ -53,10 +60,20 @@ public class UserController {
     }
 
 
-    @PostMapping("/badge")
-    @ApiOperation("佩戴徽章预览")
+    @PutMapping("/badge")
+    @ApiOperation("佩戴徽章")
     public ApiResult<Void> wearing(@Valid @RequestBody WearingBadgeReq req){
         userService.wearingBadge(RequestHolder.get().getUid(), req.getItemId());
+        return ApiResult.success();
+    }
+
+    @PutMapping("/black")
+    @ApiOperation("拉黑用户")
+    public ApiResult<Void> black(@Valid @RequestBody BlackReq req){
+        Long uid = RequestHolder.get().getUid();
+        boolean hasPower = roleService.hasPower(uid, RoleEnum.ADMIN);
+        AssertUtil.isTrue(hasPower, "mallchat管理员没权限");
+        userService.black(req);
         return ApiResult.success();
     }
 

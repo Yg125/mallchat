@@ -10,6 +10,7 @@ import java.util.Date;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.yg.mallchat.common.user.domain.enums.BlackTypeEnum;
 
 /**
  * <p>
@@ -30,10 +31,11 @@ public class Black implements Serializable {
      * id
      */
       @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+      private Long id;
 
     /**
      * 拉黑目标类型 1.ip 2uid
+     * @see BlackTypeEnum
      */
     @TableField("type")
     private Integer type;

@@ -1,20 +1,23 @@
 package org.yg.mallchat.common.user.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yg.mallchat.common.common.annotation.RedissonLock;
+import org.yg.mallchat.common.common.event.UserBlackEvent;
 import org.yg.mallchat.common.common.event.UserRegisterEvent;
 import org.yg.mallchat.common.common.utils.AssertUtil;
+import org.yg.mallchat.common.user.dao.BlackDao;
 import org.yg.mallchat.common.user.dao.ItemConfigDao;
 import org.yg.mallchat.common.user.dao.UserBackpackDao;
 import org.yg.mallchat.common.user.dao.UserDao;
-import org.yg.mallchat.common.user.domain.entity.ItemConfig;
-import org.yg.mallchat.common.user.domain.entity.User;
-import org.yg.mallchat.common.user.domain.entity.UserBackpack;
+import org.yg.mallchat.common.user.domain.entity.*;
+import org.yg.mallchat.common.user.domain.enums.BlackTypeEnum;
 import org.yg.mallchat.common.user.domain.enums.ItemEnum;
 import org.yg.mallchat.common.user.domain.enums.ItemTypeEnum;
+import org.yg.mallchat.common.user.domain.vo.req.BlackReq;
 import org.yg.mallchat.common.user.domain.vo.resp.BadgeResp;
 import org.yg.mallchat.common.user.domain.vo.resp.UserInfoResp;
 import org.yg.mallchat.common.user.service.UserService;
@@ -22,6 +25,7 @@ import org.yg.mallchat.common.user.service.adapter.UserAdapter;
 import org.yg.mallchat.common.user.service.cache.ItemCache;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +48,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private BlackDao blackDao;
 
     @Override
     @Transactional
@@ -98,5 +105,34 @@ public class UserServiceImpl implements UserService {
         ItemConfig itemConfig = itemConfigDao.getById(firstValidItem.getItemId());
         AssertUtil.equal(itemConfig.getType(), ItemTypeEnum.BADGE.getType(), "只有徽章才能佩戴");
         userDao.wearingBadge(uid, itemId);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void black(BlackReq req) {
+        Long uid = req.getUid();
+        Black user = new Black();
+        user.setType(BlackTypeEnum.UID.getType());
+        user.setTarget(uid.toString());
+        blackDao.save(user);
+        User byId = userDao.getById(uid);
+        blackIp(Optional.ofNullable(byId.getIpInfo()).map(IpInfo::getCreateIp).orElse(null));
+        blackIp(Optional.ofNullable(byId.getIpInfo()).map(IpInfo::getUpdateIp).orElse(null));
+        applicationEventPublisher.publishEvent(new UserBlackEvent(this, byId));
+    }
+
+    private void blackIp(String ip) {
+        if(StringUtils.isBlank(ip)){
+            return ;
+        }
+        try{
+            Black insert = new Black();
+            insert.setType(BlackTypeEnum.IP.getType());
+            insert.setTarget(ip);
+            blackDao.save(insert);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

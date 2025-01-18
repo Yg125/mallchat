@@ -18,9 +18,13 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Autowired
     private CollectorInterceptor collectorInterceptor;
 
+    @Autowired
+    private BlackInterceptor blackInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(tokenInterceptor).addPathPatterns("/capi/**");
         registry.addInterceptor(collectorInterceptor).addPathPatterns("/capi/**");
+        registry.addInterceptor(blackInterceptor).addPathPatterns("/capi/**");
     }
 }
